@@ -35,6 +35,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Security;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -53,12 +54,14 @@ namespace AzureFunctionForSplunk
     public class Utils
     {
         static string splunkCertThumbprint { get; set; }
+        static ILogger classyLogger { get; set; }
+
         // static ILogger _logger = new LogerFactory().CreateLogger<Utils>();
         static Utils()
         {
 
             splunkCertThumbprint = getEnvironmentVariable("splunkCertThumbprint");
-
+            classyLogger = null;
         }
 
         public static string getEnvironmentVariable(string name)
@@ -171,8 +174,8 @@ namespace AzureFunctionForSplunk
 
             // _logger.LogInformation("Splunk Cert Thumbprint: " + splunkCertThumbprint);
             // _logger.LogInformation("CA Cert: " + thumbprint);
-            Trace.WriteLine("Splunk Cert Thumbprint: " + splunkCertThumbprint);
-            Trace.WriteLine("CA Cert: " + thumbprint);
+            classyLogger.LogInformation("Splunk Cert Thumbprint: " + splunkCertThumbprint);
+            classyLogger.LogInformation("CA Cert: " + thumbprint);
 
             if (thumbprint == splunkCertThumbprint)
                 return true;
@@ -279,6 +282,7 @@ namespace AzureFunctionForSplunk
         public static async Task obHEC(List<string> standardizedEvents, ILogger log)
         {
             Trace.WriteLine("obHEC");
+            classyLogger = log;
 
             string splunkAddress = Utils.getEnvironmentVariable("splunkAddress");
             string splunkToken = Utils.getEnvironmentVariable("splunkToken");
