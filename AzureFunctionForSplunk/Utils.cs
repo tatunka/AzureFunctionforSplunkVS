@@ -30,6 +30,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -47,13 +48,16 @@ namespace AzureFunctionForSplunk
 
     }
 
+
+
     public class Utils
     {
         static string splunkCertThumbprint { get; set; }
-
+        // static ILogger _logger = new LogerFactory().CreateLogger<Utils>();
         static Utils()
         {
             splunkCertThumbprint = getEnvironmentVariable("splunkCertThumbprint");
+
         }
 
         public static string getEnvironmentVariable(string name)
@@ -152,6 +156,7 @@ namespace AzureFunctionForSplunk
 
         public static bool ValidateMyCert(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors sslErr)
         {
+
             // if user has not configured a cert, anything goes
             if (string.IsNullOrWhiteSpace(splunkCertThumbprint))
                 return true;
@@ -161,8 +166,15 @@ namespace AzureFunctionForSplunk
             var cacert = chain.ChainElements[numcerts - 1].Certificate;
 
             var thumbprint = cacert.GetCertHashString().ToLower();
+
+            // _logger.LogInformation("Splunk Cert Thumbprint: " + splunkCertThumbprint);
+            // _logger.LogInformation("CA Cert: " + thumbprint);
+            Trace.WriteLine("Splunk Cert Thumbprint: " + splunkCertThumbprint);
+            Trace.WriteLine("CA Cert: " + thumbprint);
+
             if (thumbprint == splunkCertThumbprint)
                 return true;
+            
 
             return false;
         }
