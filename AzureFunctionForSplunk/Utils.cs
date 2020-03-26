@@ -139,7 +139,8 @@ namespace AzureFunctionForSplunk
             }
 
             public static async Task<HttpResponseMessage> SendToService(HttpRequestMessage req)
-            {
+            {                    
+                classyLogger.LogInformation("Inside SendToService");
                 HttpResponseMessage response = await HttpClient.SendAsync(req);
                 return response;
             }
@@ -319,9 +320,14 @@ namespace AzureFunctionForSplunk
                         Content = new StringContent(item, Encoding.UTF8, "application/json")
                     };
 
+                    classyLogger.LogInformation("About to make Send To Service Request.");
                     HttpResponseMessage response = await SingleHttpClientInstance.SendToService(httpRequestMessage);
+                    classyLogger.LogInformation("Back from Service Request.");
+
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
+                        classyLogger.LogInformation("Oops, hit snag: " + response.StatusCode);
+                        classyLogger.LogInformation("Oops, hit snag: " + response.ReasonPhrase);
                         throw new System.Net.Http.HttpRequestException($"StatusCode from Splunk: {response.StatusCode}, and reason: {response.ReasonPhrase}");
                     }
                 }
