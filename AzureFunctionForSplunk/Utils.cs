@@ -56,6 +56,7 @@ namespace AzureFunctionForSplunk
         // static ILogger _logger = new LogerFactory().CreateLogger<Utils>();
         static Utils()
         {
+
             splunkCertThumbprint = getEnvironmentVariable("splunkCertThumbprint");
 
         }
@@ -121,6 +122,7 @@ namespace AzureFunctionForSplunk
 
             static SingleHttpClientInstance()
             {
+                Trace.WriteLine("ctor SingleHttpClientInstance");
                 var handler = new SocketsHttpHandler
                 {
                     SslOptions = new SslClientAuthenticationOptions
@@ -254,10 +256,13 @@ namespace AzureFunctionForSplunk
                     },
                     Content = new StringContent(bulkTransmission.ToString(), Encoding.UTF8)
                 };
-
+                Trace.WriteLine("Calling Send to Service");
                 HttpResponseMessage response = await SingleHttpClientInstance.SendToService(httpRequestMessage);
+                Trace.WriteLine("Send to Service Complete");
+                Trace.WriteLine("Reason Phrase:" + response.ReasonPhrase);
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
+                    Trace.WriteLine("Failed! Http Status Code: " + response.StatusCode);
                     throw new System.Net.Http.HttpRequestException($"StatusCode from Proxy Function: {response.StatusCode}, and reason: {response.ReasonPhrase}");
                 }
             }
@@ -273,6 +278,8 @@ namespace AzureFunctionForSplunk
 
         public static async Task obHEC(List<string> standardizedEvents, ILogger log)
         {
+            Trace.WriteLine("obHEC");
+
             string splunkAddress = Utils.getEnvironmentVariable("splunkAddress");
             string splunkToken = Utils.getEnvironmentVariable("splunkToken");
             if (splunkAddress.Length == 0 || splunkToken.Length == 0)
