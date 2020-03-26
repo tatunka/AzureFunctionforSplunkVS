@@ -85,7 +85,9 @@ namespace AzureFunctionForSplunk
                 var splunkMsgs = (SplunkEventMessages)Activator.CreateInstance(typeof(T2), outputEvents, log);
                 try
                 {
+                    log.LogInformation("About to ingest.");
                     splunkMsgs.Ingest(decomposed.ToArray());
+                    log.LogInformation("About to emit.");
                     await splunkMsgs.Emit();
                 }
                 catch (Exception exEmit)
