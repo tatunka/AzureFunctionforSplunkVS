@@ -157,11 +157,11 @@ namespace AzureFunctionForSplunk
                 return true;
 
             // if user has configured a cert, must match
-            var numcerts = chain.ChainElements.Count;
-            var cacert = chain.ChainElements[numcerts - 1].Certificate;
+            // var numcerts = chain.ChainElements.Count;
+            // var cacert = chain.ChainElements[numcerts - 1].Certificate;
+            var certThumbprint = cert.GetCertHashString().ToLower();
 
-            var thumbprint = cacert.GetCertHashString().ToLower();
-            if (thumbprint == splunkCertThumbprint)
+            if (certThumbprint == splunkCertThumbprint.ToLower())
                 return true;
 
             return false;
