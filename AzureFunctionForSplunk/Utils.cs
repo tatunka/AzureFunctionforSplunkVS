@@ -30,7 +30,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+// using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -125,7 +125,7 @@ namespace AzureFunctionForSplunk
 
             static SingleHttpClientInstance()
             {
-                Trace.WriteLine("ctor SingleHttpClientInstance");
+                classyLogger.LogInformation("ctor SingleHttpClientInstance");
                 var handler = new SocketsHttpHandler
                 {
                     SslOptions = new SslClientAuthenticationOptions
@@ -259,13 +259,13 @@ namespace AzureFunctionForSplunk
                     },
                     Content = new StringContent(bulkTransmission.ToString(), Encoding.UTF8)
                 };
-                Trace.WriteLine("Calling Send to Service");
+                classyLogger.LogInformation("Calling Send to Service");
                 HttpResponseMessage response = await SingleHttpClientInstance.SendToService(httpRequestMessage);
-                Trace.WriteLine("Send to Service Complete");
-                Trace.WriteLine("Reason Phrase:" + response.ReasonPhrase);
+                classyLogger.LogInformation("Send to Service Complete");
+                classyLogger.LogInformation("Reason Phrase:" + response.ReasonPhrase);
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    Trace.WriteLine("Failed! Http Status Code: " + response.StatusCode);
+                    classyLogger.LogInformation("Failed! Http Status Code: " + response.StatusCode);
                     throw new System.Net.Http.HttpRequestException($"StatusCode from Proxy Function: {response.StatusCode}, and reason: {response.ReasonPhrase}");
                 }
             }
@@ -281,8 +281,8 @@ namespace AzureFunctionForSplunk
 
         public static async Task obHEC(List<string> standardizedEvents, ILogger log)
         {
-            Trace.WriteLine("obHEC");
             classyLogger = log;
+            classyLogger.LogInformation("obHEC");
 
             string splunkAddress = Utils.getEnvironmentVariable("splunkAddress");
             string splunkToken = Utils.getEnvironmentVariable("splunkToken");
